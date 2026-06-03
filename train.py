@@ -5,7 +5,7 @@ from transformers import (
     DataCollatorForLanguageModeling
 )
 from datasets import Dataset
-from config import BASE_MODEL, EPOCHS, BATCH_SIZE, LEARNING_RATE, MAX_LENGTH, DEVICE, DATASET_DIR, MODELS_DIR, OUTPUTS_DIR
+from config import BASE_MODEL, EPOCHS, BATCH_SIZE, LEARNING_RATE, MAX_LENGTH, DATASET_DIR, MODELS_DIR, OUTPUTS_DIR
 
 def load_texts(data_dir):
     texts = []
@@ -20,7 +20,8 @@ def load_texts(data_dir):
     return texts
 
 def train(data_dir=None, model_name=BASE_MODEL, epochs=EPOCHS,
-          batch_size=BATCH_SIZE, lr=LEARNING_RATE, max_length=MAX_LENGTH):
+          batch_size=BATCH_SIZE, lr=LEARNING_RATE, max_length=MAX_LENGTH,
+          device="cpu"):
     data_dir = data_dir or str(DATASET_DIR)
 
     raw_texts = load_texts(data_dir)
@@ -48,9 +49,8 @@ def train(data_dir=None, model_name=BASE_MODEL, epochs=EPOCHS,
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    device_map = DEVICE if DEVICE != "mps" or (DEVICE == "mps" and torch.backends.mps.is_available()) else "cpu"
-    if device_map == "mps":
-        model = model.to("mps")
+    if device != "cpu":
+        model = model.to(device)
 
     args = TrainingArguments(
         output_dir=str(OUTPUTS_DIR),
@@ -64,7 +64,7 @@ def train(data_dir=None, model_name=BASE_MODEL, epochs=EPOCHS,
         load_best_model_at_end=True,
         save_total_limit=2,
         fp16=False,
-        use_cpu=DEVICE == "cpu",
+        use_cpu=device == "cpu",
         report_to="none",
     )
 

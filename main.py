@@ -13,6 +13,7 @@ def main():
     train_p.add_argument("--epochs", type=int, default=3)
     train_p.add_argument("--batch", type=int, default=4)
     train_p.add_argument("--lr", type=float, default=5e-5)
+    train_p.add_argument("--device", default="cpu", help="Device to use (cpu or cuda)")
 
     gen_p = sub.add_parser("generate", help="Generate text from trained model")
     gen_p.add_argument("prompt", help="Text prompt")
@@ -31,6 +32,7 @@ def main():
             epochs=args.epochs,
             batch_size=args.batch,
             lr=args.lr,
+            device=args.device,
         )
     elif args.command == "generate":
         generate(
