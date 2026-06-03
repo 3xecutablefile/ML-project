@@ -1,6 +1,6 @@
 # ML Project — GPT-2 Conversational AI
 
-Fine-tune GPT-2 for simple English conversations.
+Retrained GPT-2 for simple English conversations.
 
 ## Quick Start
 
