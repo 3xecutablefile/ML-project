@@ -1,4 +1,4 @@
-# ML Project — GPT-2 Conversational AI
+# Local conversational ai 
 
 Retrained GPT-2 for simple English conversations.
 
