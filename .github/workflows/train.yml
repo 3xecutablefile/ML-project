@@ -1,0 +1,61 @@
+name: Train Model
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dataset/**'
+      - 'train.py'
+      - 'config.py'
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: 'Number of training epochs'
+        required: true
+        default: '5'
+      batch_size:
+        description: 'Training batch size'
+        required: true
+        default: '4'
+
+env:
+  HF_HUB_ENABLE_HF_TRANSFER: 0
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate training data
+        run: python3 dataset/build_data.py
+
+      - name: Train model
+        run: |
+          EPOCHS=${{ github.event.inputs.epochs || '5' }}
+          BATCH=${{ github.event.inputs.batch_size || '4' }}
+          python3 main.py train --epochs $EPOCHS --batch $BATCH --device cpu
+
+      - name: Quick test
+        run: |
+          python3 main.py generate "You: Hello" --max-new 30
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: convo-model
+          path: models/convo-model/
+          compression-level: 6
+          retention-days: 30
